@@ -57,7 +57,7 @@ void hcDemoLoops()
 }
 
 int squareMe(const int i) { return i*i; };	// these will be used later
-int sum(const int &i, const int &sumSoFar) { return i+sumSoFar; }
+int sum( int i, int sumSoFar) { return i+sumSoFar; }
 
 static void hcDemoHigherOrder()
 {
@@ -74,7 +74,7 @@ static void hcDemoHigherOrder()
 
 	// alternate notation: don't pre-define the funcion above, but use [ ] to define it inline
 	//	list<int> squares = HaverfordCS::map([](int i) { return i*i; }, example);
-	//	int total = HaverfordCS::reduce([](int i, int sumSoFar) { return i+sumSoFar; }, 0, squares);
+	//	int total = HaverfordCS::reduce([](const int &i, const int &sumSoFar) { return i+sumSoFar; }, 0, squares);
 	// or, without even temporary variable "squares":
 	// int total = HaverfordCS::reduce([](int i, int sumSoFar) { return i+sumSoFar; },
 	//                                 0,
