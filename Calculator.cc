@@ -54,6 +54,8 @@ void runCalculator()
 	string token;
 	functionsToAdd();
 
+	cout << "Welcome to Postfix Calculator by Christopher Villalta\nPlease enter some integers." << endl;
+
 	while (cin >> token and token != "bye") {
 		if (looksLikeInt(token)) {
 			cout << "Thanks for entering the integer " << stoi(token) << endl;

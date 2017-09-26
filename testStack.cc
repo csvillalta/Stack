@@ -26,21 +26,24 @@ bool testStack() // probably this should be made more difficult...
 {
 	bool return_val = true; // or bool return_val = test_add() && ...
 	Stack testStack;
-	cout << testStack.size() << endl;
-	cout << "testStack.push(1)" << endl;
+	cout << "Stack testStack;" << endl;
+	cout << "testStack.size()\n" << testStack.size() << endl;
 	testStack.push(1);
-	cout << testStack.size() << endl;
-	cout << testStack.pop() << endl;
-	cout << testStack.size() << endl;
-	testStack.push(1);
-	cout << "testStack.push(1)" << endl;
-	testStack.push(2);
-	cout << "testStack.push(2)" << endl;
-	cout << testStack.size() << endl;
-	cout << testStack.top() << endl;
-	cout << testStack.pop() << endl;
-	cout << testStack.size() << endl;
+	cout << "testStack.push(1)\n" << endl;
+	cout << "testStack.size()\n" << testStack.size() << endl;
+	cout << "testStack.pop()\n" << testStack.pop() << endl;
+	cout << "testStack.size()\n" << testStack.size() << endl;
+	testStack.push(10);
+	cout << "testStack.push(10)\n" << endl;
+	testStack.push(20);
+	cout << "testStack.push(20)\n" << endl;
+	cout << "testStack.size()\n" << testStack.size() << endl;
+	cout << "testStack.top()\n" << testStack.top() << endl;
+	cout << "testStack.pop()\n" << testStack.pop() << endl;
+	cout << "testStack.size()\n" << testStack.size() << endl;
+	cout << "testStack.top()\n" << testStack.top() << endl;
 	Stack secondStack;
-	cout << secondStack.size() << endl;
+	cout << "Stack secondStack; " << endl;
+	cout << "secondStack.size()\n" << secondStack.size() << endl;
 	return return_val;
 }
