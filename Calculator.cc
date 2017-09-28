@@ -37,7 +37,7 @@ void functionsToAdd()
 	addFunctionToDict("+", stack_add);
 	addFunctionToDict("-", stack_subtract);
 	addFunctionToDict("*", stack_multiply);
-	addFunctionToDict(".s", printStack);
+	addFunctionToDict(".s", printStackSize);
 	addFunctionToDict(".", popAndPrint);
 }
 
@@ -62,7 +62,7 @@ void runCalculator()
 			calc_stack.push(stoi(token));
 		} else {
 			if (looksLikeFunc(token)) {
-				cout << "The function " << token << " has been applied." << endl;
+				cout << "Applying " << token << " ..." << endl;
 				calc_stack = mapOfFunctions[token](calc_stack);
 			} else {
 				cout << "Not a valid input; please continue." << endl;
@@ -75,6 +75,11 @@ void runCalculator()
 
 Stack stack_add(Stack calculator_stack)
 {
+	if (calculator_stack.size() <= 1) {
+		cout << "Not enough inputs in stack to perform this operation." << endl;
+		return calculator_stack;
+	}
+
 	int b = calculator_stack.pop();
 	int a = calculator_stack.pop();
 	calculator_stack.push(a+b);
@@ -83,6 +88,10 @@ Stack stack_add(Stack calculator_stack)
 
 Stack stack_subtract(Stack calculator_stack)
 {
+	if (calculator_stack.size() <= 1) {
+		cout << "Not enough inputs in stack to perform this operation." << endl;
+		return calculator_stack;
+	}
 	int a = calculator_stack.pop();
 	int b = calculator_stack.pop();
 	calculator_stack.push(b-a);
@@ -91,6 +100,10 @@ Stack stack_subtract(Stack calculator_stack)
 
 Stack stack_multiply(Stack calculator_stack)
 {
+	if (calculator_stack.size() <= 1) {
+		cout << "Not enough inputs in stack to perform this operation." << endl;
+		return calculator_stack;
+	}
 	int a = calculator_stack.pop();
 	int b = calculator_stack.pop();
 	calculator_stack.push(b*a);
@@ -99,6 +112,10 @@ Stack stack_multiply(Stack calculator_stack)
 
 Stack popAndPrint(Stack calculator_stack)
 {
+	if (calculator_stack.size() <= 0) {
+		cout << "Not enough inputs in stack to perform this operation." << endl;
+		return calculator_stack;
+	}
 	int topvalue = calculator_stack.pop();
 	cout << topvalue << endl;
 	return calculator_stack;
@@ -112,7 +129,7 @@ Stack printStack(Stack calculator_stack)
 
 Stack printStackSize(Stack calculator_stack)
 {
-	cout << "<" << calculator_stack.size() << ">" << endl;
+	cout << "<" << calculator_stack.size() << "> " << calculator_stack.print() << endl;
 	return calculator_stack;
 }
 

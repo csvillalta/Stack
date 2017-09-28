@@ -45,5 +45,11 @@ bool testStack() // probably this should be made more difficult...
 	Stack secondStack;
 	cout << "Stack secondStack; " << endl;
 	cout << "secondStack.size()\n" << secondStack.size() << endl;
+	secondStack.push(1);
+	cout << "secondStack.push(1)" << endl;
+	secondStack.push(2);
+	cout << "secondStack.push(2)" << endl;
+	cout << "secondStack.print()\n" << secondStack.print() << endl;
+
 	return return_val;
 }

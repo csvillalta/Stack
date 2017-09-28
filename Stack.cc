@@ -51,7 +51,14 @@ int Stack::pop()
 	}
 }
 
-list<int> Stack::print()
+list<int> Stack::print() // creates a new reversed repr list so that the top of the stack is printed last
 {
-	return repr;
+	list<int> repr_copy = repr;
+	list<int> reversed_repr;
+	while (not empty(repr_copy))
+	{
+		reversed_repr = list<int>(head(repr_copy), reversed_repr);
+		repr_copy = rest(repr_copy);
+	}
+	return reversed_repr;
 }
