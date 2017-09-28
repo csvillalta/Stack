@@ -38,7 +38,7 @@ void functionsToAdd()
 	addFunctionToDict("-", stack_subtract);
 	addFunctionToDict("*", stack_multiply);
 	addFunctionToDict(".s", printStack);
-	addFunctionToDict(".", printCurrentResult);
+	addFunctionToDict(".", popAndPrint);
 }
 
 bool looksLikeFunc(string s) // Referenced https://www.cprogramming.com/tutorial/stl/stlmap.html
@@ -78,7 +78,6 @@ Stack stack_add(Stack calculator_stack)
 	int b = calculator_stack.pop();
 	int a = calculator_stack.pop();
 	calculator_stack.push(a+b);
-	cout << "Result of operation: "<< calculator_stack.top() << endl;
 	return calculator_stack;
 }
 
@@ -87,7 +86,6 @@ Stack stack_subtract(Stack calculator_stack)
 	int a = calculator_stack.pop();
 	int b = calculator_stack.pop();
 	calculator_stack.push(b-a);
-	cout << "Result of operation: "<< calculator_stack.top() << endl;
 	return calculator_stack;
 }
 
@@ -96,14 +94,13 @@ Stack stack_multiply(Stack calculator_stack)
 	int a = calculator_stack.pop();
 	int b = calculator_stack.pop();
 	calculator_stack.push(b*a);
-	cout << "Result of operation: "<< calculator_stack.top() << endl;
 	return calculator_stack;
 }
 
 Stack popAndPrint(Stack calculator_stack)
 {
-	calculator_stack.pop();
-	cout << calculator_stack.print() << endl;
+	int topvalue = calculator_stack.pop();
+	cout << topvalue << endl;
 	return calculator_stack;
 }
 
