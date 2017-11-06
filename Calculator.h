@@ -12,6 +12,13 @@ Stack popAndPrint(Stack calculator_stack);
 Stack printStack(Stack calculator_stack);
 Stack printStackSize(Stack calculator_stack);
 Stack printCurrentResult(Stack calculator_stack);
+
+Stack drop(Stack calculator_stack);
+Stack nip(Stack calculator_stack);
+Stack dup(Stack calculator_stack);
+Stack over(Stack calculator_stack);
+Stack tuck(Stack calculator_stack);
+Stack swapp(Stack calculator_stack); // I guess there's a function called 'swap'
 void runCalculator();
 
 #endif

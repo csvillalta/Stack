@@ -39,6 +39,12 @@ void functionsToAdd()
 	addFunctionToDict("*", stack_multiply);
 	addFunctionToDict(".s", printStackSize);
 	addFunctionToDict(".", popAndPrint);
+	addFunctionToDict("drop", drop);
+	addFunctionToDict("nip", nip);
+	addFunctionToDict("dup", dup);
+	addFunctionToDict("over", over);
+	addFunctionToDict("tuck", tuck);
+	addFunctionToDict("swap", swapp);
 }
 
 bool looksLikeFunc(string s) // Referenced https://www.cprogramming.com/tutorial/stl/stlmap.html
@@ -139,9 +145,52 @@ Stack printCurrentResult(Stack calculator_stack)
 	return calculator_stack;
 }
 
+Stack drop(Stack calculator_stack)
+{
+	calculator_stack.pop();
+	return calculator_stack;
+}
 
+Stack nip(Stack calculator_stack)
+{
+	int stack_top = calculator_stack.pop();
+	calculator_stack.pop();
+	calculator_stack.push(stack_top);
+	return calculator_stack;
+}
 
+Stack dup(Stack calculator_stack)
+{
+	calculator_stack.push(calculator_stack.top());
+	return calculator_stack;
+}
 
+Stack over(Stack calculator_stack)
+{
+	int stack_top = calculator_stack.pop();
+	int stack_second = calculator_stack.pop();
+	calculator_stack.push(stack_second);
+	calculator_stack.push(stack_top);
+	calculator_stack.push(stack_second);
+	return calculator_stack;
+}
 
+Stack tuck(Stack calculator_stack)
+{
+	int stack_top = calculator_stack.pop();
+	int stack_second = calculator_stack.pop();
+	calculator_stack.push(stack_top);
+	calculator_stack.push(stack_second);
+	calculator_stack.push(stack_top);
+	return calculator_stack;
+}
 
+Stack swapp(Stack calculator_stack)
+{
+	int stack_top = calculator_stack.pop();
+		int stack_second = calculator_stack.pop();
+		calculator_stack.push(stack_top);
+		calculator_stack.push(stack_second);
+		return calculator_stack;
+}
 
