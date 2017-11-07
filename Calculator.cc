@@ -45,6 +45,9 @@ void functionsToAdd()
 	addFunctionToDict("over", over);
 	addFunctionToDict("tuck", tuck);
 	addFunctionToDict("swap", swapp);
+	addFunctionToDict(">", lessThan);
+	addFunctionToDict("<", greaterThan);
+	addFunctionToDict("=", equalTo);
 }
 
 bool looksLikeFunc(string s) // Referenced https://www.cprogramming.com/tutorial/stl/stlmap.html
@@ -188,9 +191,56 @@ Stack tuck(Stack calculator_stack)
 Stack swapp(Stack calculator_stack)
 {
 	int stack_top = calculator_stack.pop();
-		int stack_second = calculator_stack.pop();
-		calculator_stack.push(stack_top);
-		calculator_stack.push(stack_second);
-		return calculator_stack;
+	int stack_second = calculator_stack.pop();
+	calculator_stack.push(stack_top);
+	calculator_stack.push(stack_second);
+	return calculator_stack;
 }
 
+Stack greaterThan(Stack calculator_stack)
+{
+	int stack_top = calculator_stack.pop();
+	int stack_second = calculator_stack.pop();
+	if (stack_top > stack_second)
+	{
+		calculator_stack.push(-1);
+		return calculator_stack;
+	}
+	else
+	{
+		calculator_stack.push(0);
+		return calculator_stack;
+	}
+}
+
+Stack lessThan(Stack calculator_stack)
+{
+	int stack_top = calculator_stack.pop();
+	int stack_second = calculator_stack.pop();
+	if (stack_top < stack_second)
+	{
+		calculator_stack.push(-1);
+		return calculator_stack;
+	}
+	else
+	{
+		calculator_stack.push(0);
+		return calculator_stack;
+	}
+}
+
+Stack equalTo(Stack calculator_stack)
+{
+	int stack_top = calculator_stack.pop();
+	int stack_second = calculator_stack.pop();
+	if (stack_top == stack_second)
+	{
+		calculator_stack.push(-1);
+		return calculator_stack;
+	}
+	else
+	{
+		calculator_stack.push(0);
+		return calculator_stack;
+	}
+}

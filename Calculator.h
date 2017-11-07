@@ -19,6 +19,9 @@ Stack dup(Stack calculator_stack);
 Stack over(Stack calculator_stack);
 Stack tuck(Stack calculator_stack);
 Stack swapp(Stack calculator_stack); // I guess there's a function called 'swap'
+Stack lessThan(Stack calculator_stack);
+Stack greaterThan(Stack calculator_stack);
+Stack equalTo(Stack calculator_stack);
 void runCalculator();
 
 #endif
