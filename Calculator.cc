@@ -19,7 +19,10 @@ using HaverfordCS::list;	// like using namespace HaverfordCS, but just for one n
 using namespace std;
 
 map<string, function<Stack (Stack)>> mapOfFunctions;
+map<string, string> mapOfUserFunctions;
 Stack calc_stack;
+bool TAKE_USER_INPUT = false; // flag for taking user input
+string user_input_string = ""; // initialize user input string for use in the REPL
 
 bool looksLikeInt(string s)
 {
@@ -30,6 +33,10 @@ bool looksLikeInt(string s)
 void addFunctionToDict(string function_name, function<Stack (Stack)> f)
 {
 	mapOfFunctions[function_name] = f;
+}
+void addFunctionToUserDict(string function_name, string function_body)
+{
+	mapOfUserFunctions[function_name] = function_body;
 }
 
 void functionsToAdd()
@@ -55,7 +62,44 @@ bool looksLikeFunc(string s) // Referenced https://www.cprogramming.com/tutorial
 	if(mapOfFunctions.find(s) == mapOfFunctions.end())
 		return false;
 	return true;
+}
 
+bool looksLikeUserFunc(string s) // Referenced https://www.cprogramming.com/tutorial/stl/stlmap.html
+{
+	if(mapOfUserFunctions.find(s) == mapOfUserFunctions.end())
+		return false;
+	return true;
+}
+
+void runUserFunc(string token) // This function is what parses our user defined function string
+{
+	string user_func_copy = mapOfUserFunctions[token];
+	string curr_token;
+	int original_length = user_func_copy.length();
+	int end;
+	while (user_func_copy.length() != 0)
+	{
+		end = user_func_copy.find(" ")+1;
+		curr_token = user_func_copy.substr(0, end-1);	// extracts a function from our value string
+		cout << curr_token << endl;
+		if (looksLikeInt(curr_token))
+		{
+			calc_stack.push(stoi(curr_token));
+		}
+		else if (looksLikeFunc(curr_token))
+		{
+			calc_stack = mapOfFunctions[curr_token](calc_stack);		// applies the function to calc_stack
+		}
+		else if (looksLikeUserFunc(curr_token))
+		{
+			runUserFunc(curr_token);
+		}
+		else
+		{
+			cout << "Not a valid input; please continue." << endl;
+		}
+		user_func_copy = user_func_copy.substr(end, original_length);
+	}
 }
 
 void runCalculator()
@@ -66,19 +110,55 @@ void runCalculator()
 	cout << "Welcome to Postfix Calculator by Christopher Villalta\nPlease enter some integers." << endl;
 
 	while (cin >> token and token != "bye") {
-		if (looksLikeInt(token)) {
-			cout << "Thanks for entering the integer " << stoi(token) << endl;
-			calc_stack.push(stoi(token));
-		} else {
-			if (looksLikeFunc(token)) {
-				cout << "Applying " << token << " ..." << endl;
-				calc_stack = mapOfFunctions[token](calc_stack);
-			} else {
-				cout << "Not a valid input; please continue." << endl;
+		if (not TAKE_USER_INPUT)
+		{
+			if (token == ":")
+			{
+				TAKE_USER_INPUT = true;
+				cout << "Now taking user input." << endl;
+			}
+			else if (looksLikeInt(token))
+			{
+				cout << "Thanks for entering the integer " << stoi(token) << endl;
+				calc_stack.push(stoi(token));
+			}
+			else
+			{
+				if (looksLikeFunc(token))
+				{
+					cout << "Applying " << token << " ..." << endl;
+					calc_stack = mapOfFunctions[token](calc_stack);
+				}
+				else if (looksLikeUserFunc(token))
+				{
+					runUserFunc(token);
+				}
+				else
+				{
+					cout << "Not a valid input; please continue." << endl;
+				}
+			}
+		}
+		else
+		{
+			if (token != ";")
+			{
+				user_input_string += token + " ";
+			}
+			else
+			{
+				TAKE_USER_INPUT = false;
+				string user_function_name = user_input_string.substr(0, user_input_string.find(" "));
+				string user_function_def = user_input_string.substr(user_input_string.find(" ")+1, user_input_string.length());
+				cout << user_function_def << endl;
+				addFunctionToUserDict(user_function_name, user_function_def);
+				cout << "No longer taking user input. Here is the string: " << user_input_string << "key: " << user_function_name << "value: " << user_function_def << endl;
+				user_input_string = ""; // resets our user string to define new definitions
 			}
 		}
 	}
 }
+
 
 // Actual stack calculator functions
 
@@ -244,3 +324,5 @@ Stack equalTo(Stack calculator_stack)
 		return calculator_stack;
 	}
 }
+
+
