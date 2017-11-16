@@ -17,18 +17,18 @@ using std::endl;
 
 int main ()
 {
-	cout << "***** First, some list demos:" << endl;
-	hcListDemos();
-	stdListDemo();
-	cout << endl << endl;  // space between tests
-
-	cout << "***** Now, the list practice, as described in the pre-lab" << endl;
-	if (!testListPractice()) cout << "oops, it returns false" << endl;
-	cout << endl << endl;  // space between tests
+//	cout << "***** First, some list demos:" << endl;
+//	hcListDemos();
+//	stdListDemo();
+//	cout << endl << endl;  // space between tests
+//
+//	cout << "***** Now, the list practice, as described in the pre-lab" << endl;
+//	if (!testListPractice()) cout << "oops, it returns false" << endl;
+//	cout << endl << endl;  // space between tests
 	
 
-	cout << "***** Finally, the stack program (you'll need to write this, too):" << endl;
-	testStack();
+//	cout << "***** Finally, the stack program (you'll need to write this, too):" << endl;
+//	testStack();
 	runCalculator();
 	return 0;
 }
