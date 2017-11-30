@@ -85,20 +85,41 @@ void runUserFunc(string token) // This function is what parses our user defined 
 		if (looksLikeInt(curr_token))
 		{
 			calc_stack.push(stoi(curr_token));
+			user_func_copy = user_func_copy.substr(end, original_length);
 		}
 		else if (looksLikeFunc(curr_token))
 		{
 			calc_stack = mapOfFunctions[curr_token](calc_stack);		// applies the function to calc_stack
+			user_func_copy = user_func_copy.substr(end, original_length);
 		}
 		else if (looksLikeUserFunc(curr_token))
 		{
 			runUserFunc(curr_token);
+			user_func_copy = user_func_copy.substr(end, original_length);
 		}
-		else
+		else if (curr_token == "if")
 		{
-			cout << "Not a valid input; please continue." << endl;
+			if (true) // TODO I need to change 'true' to a function that returns true if the if has a corresponding else and endif
+			{
+				if (calc_stack.pop()) // i.e. if top of stack is non-zero
+				{
+					// i.e. make user_func_copy the string without the else clause
+					user_func_copy = user_func_copy.substr(1, BEFORE_ELSE) + user_func_copy.(AFTER_ENDIF, original_length); // TODO create function to find the position of the corresponding ELSE and the corresponding ENDIF
+				}
+				else // i.e. if top of stack is zero
+				{
+					// i.e. make) user_func_copy the string without the if clause and everything in the else clause and afterwards (excluding endif)
+					user_func_copy = user_func_copy.substr(AFTER_ELSE, BEFORE_ENDIF) + user_func_copy.substr(AFTER_ENDIF, original_length);
+				}
+
+			}
+			// TODO Add error handling else statement when if does not have proper format!
+			else
+			{
+				cout << "Not a valid input; please continue." << endl;
+			}
+//		user_func_copy = user_func_copy.substr(end, original_length);
 		}
-		user_func_copy = user_func_copy.substr(end, original_length);
 	}
 }
 
@@ -147,6 +168,7 @@ void runCalculator()
 			}
 			else
 			{
+				// TODO change implementation to use Vectors rather than Strings
 				TAKE_USER_INPUT = false;
 				string user_function_name = user_input_string.substr(0, user_input_string.find(" "));
 				string user_function_def = user_input_string.substr(user_input_string.find(" ")+1, user_input_string.length());
@@ -324,5 +346,7 @@ Stack equalTo(Stack calculator_stack)
 		return calculator_stack;
 	}
 }
+
+
 
 
