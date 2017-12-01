@@ -36,3 +36,7 @@ currently limited to infinite recursion since no if statement has been implement
 
 The tradeoffs in time come from having to search a dictionary to run a function every time
 we call that function.
+
+
+// Changed user_function_def to a vector instead of string
+// runUserFunc now takes a vector that is the function definition rather than a token

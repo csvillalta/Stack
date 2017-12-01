@@ -9,6 +9,7 @@
 */
 
 /*----------Includes---------*/
+#include <stdlib.h> // for exit()
 #include <hc_list.h>
 using HaverfordCS::list;	// like using namespace HaverfordCS, but just for one name
 #include "Stack.h"
@@ -39,7 +40,10 @@ std::vector<string> delimiterParse(string s, string delimiter)
 	return string_split;
 }
 
-int findIndex(std::vector<string> input, string value)
+// findIndex takes a string vector input and two strings
+// and returns the index of the value that has not been
+// matched to a preceeding new_match_indicator.
+int findIndex(std::vector<string> input, string value, string new_match_indicator)
 {
 
 	std::size_t i = 1;
@@ -49,11 +53,11 @@ int findIndex(std::vector<string> input, string value)
 		{
 				return i;
 		}
-		else if (input[i] == "if")
+		else if (input[i] == new_match_indicator)
 		{
 			std::vector<string> after_if;
 			after_if.insert(after_if.begin(), input.begin()+i, input.end());
-			i += findIndex(after_if, value);
+			i += findIndex(after_if, value, new_match_indicator);
 		}
 		i = i + 1;
 	}
@@ -93,6 +97,8 @@ void functionsToAdd()
 	addFunctionToDict("swap", swapp);
 	addFunctionToDict(">", lessThan);
 	addFunctionToDict("<", greaterThan);
+	addFunctionToDict(">=", lessThanOrEqual);
+	addFunctionToDict("<=", greaterThanOrEqual);
 	addFunctionToDict("=", equalTo);
 }
 
@@ -103,6 +109,7 @@ bool looksLikeFunc(string s) // Referenced https://www.cprogramming.com/tutorial
 	return true;
 }
 
+
 bool looksLikeUserFunc(string s) // Referenced https://www.cprogramming.com/tutorial/stl/stlmap.html
 {
 	if(mapOfUserFunctions.find(s) == mapOfUserFunctions.end())
@@ -110,9 +117,13 @@ bool looksLikeUserFunc(string s) // Referenced https://www.cprogramming.com/tuto
 	return true;
 }
 
-void runUserFunc(string token) // This function is what parses our user defined function string
+
+void runUserFunc(std::vector<string> function_body) // This function is what parses our user defined function string
 {
-	std::vector<string> user_func_copy = mapOfUserFunctions[token]; // TODO user_func_copy is now a vector!
+	std::vector<string> maintained_user_func_copy = function_body; // a function_body copy that is not mutated while the loop runs
+																	// this will allow a while loop to return to the beginning of the begin
+																	// block even after the begin block's code has been run and mutated!
+	std::vector<string> user_func_copy = function_body;
 	while (not user_func_copy.empty())
 	{
 		string curr_token = user_func_copy.front();
@@ -128,7 +139,7 @@ void runUserFunc(string token) // This function is what parses our user defined 
 		}
 		else if (looksLikeUserFunc(curr_token))
 		{
-			runUserFunc(curr_token);
+			runUserFunc(mapOfUserFunctions[curr_token]);
 			user_func_copy.erase(user_func_copy.begin());
 		}
 		else if (curr_token == "if")
@@ -138,22 +149,22 @@ void runUserFunc(string token) // This function is what parses our user defined 
 				if (calc_stack.pop() != 0) // i.e. if top of stack is non-zero
 				{
 					user_func_copy.erase(user_func_copy.begin());
-					int else_pos = findIndex(user_func_copy, "else");
+					int else_pos = findIndex(user_func_copy, "else", "if");
 					cout << else_pos << endl;
-					int endif_pos = findIndex(user_func_copy, "endif");
+					int endif_pos = findIndex(user_func_copy, "endif", "if");
 					cout << endif_pos << endl;
 					user_func_copy.erase(user_func_copy.begin()+(else_pos), user_func_copy.begin()+(endif_pos+1));
-//					for (unsigned p = 0; p<user_func_copy.size(); p++)
-//					{
-//						cout << user_func_copy[p] << "a" << endl;
-//					}
+					for (unsigned p = 0; p<user_func_copy.size(); p++)
+					{
+						cout << user_func_copy[p] << "a" << endl;
+					}
 				}
 				else // i.e. if top of stack is zero
 				{
 					cout << "we in bois" << endl;
-					int else_pos = findIndex(user_func_copy, "else");
+					int else_pos = findIndex(user_func_copy, "else", "if");
 					user_func_copy.erase(user_func_copy.begin(), user_func_copy.begin()+(else_pos+1));
-					int endif_pos = findIndex(user_func_copy, "endif");
+					int endif_pos = findIndex(user_func_copy, "endif", "if");
 					user_func_copy.erase(user_func_copy.begin()+endif_pos);
 					for (unsigned p = 0; p<user_func_copy.size(); p++)
 					{
@@ -163,11 +174,56 @@ void runUserFunc(string token) // This function is what parses our user defined 
 
 			}
 			// TODO Add error handling else statement when if does not have proper format!
+		}
+		else if (curr_token == "begin")
+		{
+//			cout << "entered begin" << endl;
+			std::vector<string> user_func_loop_copy = user_func_copy; // making a copy we can mutate freely without mutating the original
+//			for (unsigned p = 0; p<user_func_loop_copy.size(); p++)
+//			{
+//				cout << user_func_copy[p] << "|1|" << endl;
+//			}
+			user_func_loop_copy.erase(user_func_loop_copy.begin());	// erase the "begin" keyword
+//			for (unsigned p = 0; p<user_func_loop_copy.size(); p++)
+//			{
+//				cout << user_func_copy[p] << "|2|" << endl;
+//			}
+			runUserFunc(user_func_loop_copy); // i.e. run the code after the while loop...
+			user_func_copy.erase(user_func_copy.begin(), user_func_copy.begin()+findIndex(user_func_copy, "repeat", "begin")+1);
+		}
+		else if (curr_token == "while") // when the token reaches a while, the while shall check a condition and that will determine to
+		{								// run it's code and hit the return statement or to skip to after it's corresponding return.
+										// Invariant: assuming the function_body parameter is the code right after the begin encountered
+			if (calc_stack.pop() != 0) // i.e. the flag/condition is true, then continue running the while code block
+			{
+//				cout << "entered while true case" << endl;
+				std::vector<string> while_code_block (user_func_copy.begin()+1, user_func_copy.begin()+findIndex(user_func_copy, "repeat", "begin"));
+//				for (unsigned p = 0; p<while_code_block.size(); p++)
+//				{
+//					cout << user_func_copy[p] << "|2|" << endl;
+//				}
+				// std::vector<string> begin_code_block (user_func_copy.begin(), user_func_copy.begin()+findIndex(user_func_copy, "while", "begin")-1);
+				runUserFunc(while_code_block); // run the while_code_block
+//				cout << "ran while code block" << endl;
+				user_func_copy = maintained_user_func_copy; // run the code again from the start (this will work since the stack is being mutated in the background)
+			}
+			else	// i.e. the flag/condition is false, then skip to after this while's corresponding return
+			{
+//				cout << "entered while false case" << endl;
+				user_func_copy.clear();
+//				int return_pos = findIndex(user_func_copy, "repeat", "begin");
+//				user_func_copy.erase(user_func_copy.begin(), user_func_copy.begin()+return_pos);
+			}
+		}
+		else if (curr_token == "repeat")
+		{
+			cout << "we read repeat..." << endl;
+			exit(1);
+		}
 		else
 		{
 			cout << "Not a valid input; please continue." << endl;
 		}
-	}
 }
 }
 
@@ -200,7 +256,8 @@ void runCalculator()
 				}
 				else if (looksLikeUserFunc(token))
 				{
-					runUserFunc(token);
+					std::vector<string> token_corresponding_function = mapOfUserFunctions[token];
+					runUserFunc(token_corresponding_function);
 				}
 				else
 				{
@@ -399,6 +456,46 @@ Stack lessThan(Stack calculator_stack)
 	int stack_top = calculator_stack.pop();
 	int stack_second = calculator_stack.pop();
 	if (stack_top < stack_second)
+	{
+		calculator_stack.push(-1);
+		return calculator_stack;
+	}
+	else
+	{
+		calculator_stack.push(0);
+		return calculator_stack;
+	}
+}
+
+Stack greaterThanOrEqual(Stack calculator_stack)
+{
+	if (calculator_stack.size() <= 1) {
+		cout << "Not enough inputs in stack to perform this operation." << endl;
+		return calculator_stack;
+	}
+	int stack_top = calculator_stack.pop();
+	int stack_second = calculator_stack.pop();
+	if (stack_top >= stack_second)
+	{
+		calculator_stack.push(-1);
+		return calculator_stack;
+	}
+	else
+	{
+		calculator_stack.push(0);
+		return calculator_stack;
+	}
+}
+
+Stack lessThanOrEqual(Stack calculator_stack)
+{
+	if (calculator_stack.size() <= 1) {
+		cout << "Not enough inputs in stack to perform this operation." << endl;
+		return calculator_stack;
+	}
+	int stack_top = calculator_stack.pop();
+	int stack_second = calculator_stack.pop();
+	if (stack_top <= stack_second)
 	{
 		calculator_stack.push(-1);
 		return calculator_stack;
