@@ -1,5 +1,5 @@
 /*
-	StackInterface header file
+StackInterface header file
 */
 
 #ifndef __CALCULATOR_H_INCLUDED__   // if x.h hasn't been included yet...

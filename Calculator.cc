@@ -14,15 +14,53 @@ using HaverfordCS::list;	// like using namespace HaverfordCS, but just for one n
 #include "Stack.h"
 #include "Calculator.h"
 #include <string>
+#include <vector>
 #include <iostream>
 #include <regex>  // check if something is numeric with a "regular expression" (coming up later)
 using namespace std;
 
 map<string, function<Stack (Stack)>> mapOfFunctions;
-map<string, string> mapOfUserFunctions;
+map<string, std::vector<string>> mapOfUserFunctions;
 Stack calc_stack;
 bool TAKE_USER_INPUT = false; // flag for taking user input
 string user_input_string = ""; // initialize user input string for use in the REPL
+
+// This function was modeled off of: https://stackoverflow.com/questions/14265581/parse-split-a-string-in-c-using-string-delimiter-standard-c
+std::vector<string> delimiterParse(string s, string delimiter)
+{
+	std::vector<string> string_split;
+	std::size_t pos = 0;
+	string token;
+	while ((pos = s.find(delimiter)) != std::string::npos) {
+	    token = s.substr(0, pos);
+	    string_split.push_back(token);
+	    s.erase(0, pos + delimiter.length());
+	}
+	return string_split;
+}
+
+int findIndex(std::vector<string> input, string value)
+{
+
+	std::size_t i = 1;
+	while (i < input.size())
+	{
+		if (input[i] == value)
+		{
+				return i;
+		}
+		else if (input[i] == "if")
+		{
+			std::vector<string> after_if;
+			after_if.insert(after_if.begin(), input.begin()+i, input.end());
+			i += findIndex(after_if, value);
+		}
+		i = i + 1;
+	}
+	// TODO Better error handling
+	cout << "BAD" << endl;
+	return -1;
+}
 
 bool looksLikeInt(string s)
 {
@@ -34,7 +72,8 @@ void addFunctionToDict(string function_name, function<Stack (Stack)> f)
 {
 	mapOfFunctions[function_name] = f;
 }
-void addFunctionToUserDict(string function_name, string function_body)
+
+void addFunctionToUserDict(string function_name, std::vector<string> function_body)
 {
 	mapOfUserFunctions[function_name] = function_body;
 }
@@ -73,54 +112,63 @@ bool looksLikeUserFunc(string s) // Referenced https://www.cprogramming.com/tuto
 
 void runUserFunc(string token) // This function is what parses our user defined function string
 {
-	string user_func_copy = mapOfUserFunctions[token];
-	string curr_token;
-	int original_length = user_func_copy.length();
-	int end;
-	while (user_func_copy.length() != 0)
+	std::vector<string> user_func_copy = mapOfUserFunctions[token]; // TODO user_func_copy is now a vector!
+	while (not user_func_copy.empty())
 	{
-		end = user_func_copy.find(" ")+1;
-		curr_token = user_func_copy.substr(0, end-1);	// extracts a function from our value string
-		cout << curr_token << endl;
+		string curr_token = user_func_copy.front();
 		if (looksLikeInt(curr_token))
 		{
 			calc_stack.push(stoi(curr_token));
-			user_func_copy = user_func_copy.substr(end, original_length);
+			user_func_copy.erase(user_func_copy.begin());
 		}
 		else if (looksLikeFunc(curr_token))
 		{
 			calc_stack = mapOfFunctions[curr_token](calc_stack);		// applies the function to calc_stack
-			user_func_copy = user_func_copy.substr(end, original_length);
+			user_func_copy.erase(user_func_copy.begin());
 		}
 		else if (looksLikeUserFunc(curr_token))
 		{
 			runUserFunc(curr_token);
-			user_func_copy = user_func_copy.substr(end, original_length);
+			user_func_copy.erase(user_func_copy.begin());
 		}
 		else if (curr_token == "if")
 		{
 			if (true) // TODO I need to change 'true' to a function that returns true if the if has a corresponding else and endif
 			{
-				if (calc_stack.pop()) // i.e. if top of stack is non-zero
+				if (calc_stack.pop() != 0) // i.e. if top of stack is non-zero
 				{
-					// i.e. make user_func_copy the string without the else clause
-					user_func_copy = user_func_copy.substr(1, BEFORE_ELSE) + user_func_copy.(AFTER_ENDIF, original_length); // TODO create function to find the position of the corresponding ELSE and the corresponding ENDIF
+					user_func_copy.erase(user_func_copy.begin());
+					int else_pos = findIndex(user_func_copy, "else");
+					cout << else_pos << endl;
+					int endif_pos = findIndex(user_func_copy, "endif");
+					cout << endif_pos << endl;
+					user_func_copy.erase(user_func_copy.begin()+(else_pos), user_func_copy.begin()+(endif_pos+1));
+//					for (unsigned p = 0; p<user_func_copy.size(); p++)
+//					{
+//						cout << user_func_copy[p] << "a" << endl;
+//					}
 				}
 				else // i.e. if top of stack is zero
 				{
-					// i.e. make) user_func_copy the string without the if clause and everything in the else clause and afterwards (excluding endif)
-					user_func_copy = user_func_copy.substr(AFTER_ELSE, BEFORE_ENDIF) + user_func_copy.substr(AFTER_ENDIF, original_length);
+					cout << "we in bois" << endl;
+					int else_pos = findIndex(user_func_copy, "else");
+					user_func_copy.erase(user_func_copy.begin(), user_func_copy.begin()+(else_pos+1));
+					int endif_pos = findIndex(user_func_copy, "endif");
+					user_func_copy.erase(user_func_copy.begin()+endif_pos);
+					for (unsigned p = 0; p<user_func_copy.size(); p++)
+					{
+						cout << user_func_copy[p] << "a" << endl;
+					}
 				}
 
 			}
 			// TODO Add error handling else statement when if does not have proper format!
-			else
-			{
-				cout << "Not a valid input; please continue." << endl;
-			}
-//		user_func_copy = user_func_copy.substr(end, original_length);
+		else
+		{
+			cout << "Not a valid input; please continue." << endl;
 		}
 	}
+}
 }
 
 void runCalculator()
@@ -128,7 +176,7 @@ void runCalculator()
 	string token;
 	functionsToAdd();
 
-	cout << "Welcome to Postfix Calculator by Christopher Villalta\nPlease enter some integers." << endl;
+	cout << "Welcome to Postfix Calculator by Christopher Villalta\nPlease enter some integers!" << endl;
 
 	while (cin >> token and token != "bye") {
 		if (not TAKE_USER_INPUT)
@@ -168,13 +216,12 @@ void runCalculator()
 			}
 			else
 			{
-				// TODO change implementation to use Vectors rather than Strings
 				TAKE_USER_INPUT = false;
 				string user_function_name = user_input_string.substr(0, user_input_string.find(" "));
 				string user_function_def = user_input_string.substr(user_input_string.find(" ")+1, user_input_string.length());
-				cout << user_function_def << endl;
-				addFunctionToUserDict(user_function_name, user_function_def);
-				cout << "No longer taking user input. Here is the string: " << user_input_string << "key: " << user_function_name << "value: " << user_function_def << endl;
+				std::vector<string> user_function_def_v = delimiterParse(user_function_def, " ");
+				addFunctionToUserDict(user_function_name, user_function_def_v);
+				//cout << "No longer taking user input. Here is the string: " << user_input_string << "key: " << user_function_name << "value: " << user_function_def << endl;
 				user_input_string = ""; // resets our user string to define new definitions
 			}
 		}
@@ -252,12 +299,20 @@ Stack printCurrentResult(Stack calculator_stack)
 
 Stack drop(Stack calculator_stack)
 {
+	if (calculator_stack.size() < 1) {
+		cout << "Not enough inputs in stack to perform this operation." << endl;
+		return calculator_stack;
+	}
 	calculator_stack.pop();
 	return calculator_stack;
 }
 
 Stack nip(Stack calculator_stack)
 {
+	if (calculator_stack.size() < 1) {
+		cout << "Not enough inputs in stack to perform this operation." << endl;
+		return calculator_stack;
+	}
 	int stack_top = calculator_stack.pop();
 	calculator_stack.pop();
 	calculator_stack.push(stack_top);
@@ -266,12 +321,20 @@ Stack nip(Stack calculator_stack)
 
 Stack dup(Stack calculator_stack)
 {
+	if (calculator_stack.size() < 1) {
+		cout << "Not enough inputs in stack to perform this operation." << endl;
+		return calculator_stack;
+	}
 	calculator_stack.push(calculator_stack.top());
 	return calculator_stack;
 }
 
 Stack over(Stack calculator_stack)
 {
+	if (calculator_stack.size() <= 1) {
+		cout << "Not enough inputs in stack to perform this operation." << endl;
+		return calculator_stack;
+	}
 	int stack_top = calculator_stack.pop();
 	int stack_second = calculator_stack.pop();
 	calculator_stack.push(stack_second);
@@ -282,6 +345,10 @@ Stack over(Stack calculator_stack)
 
 Stack tuck(Stack calculator_stack)
 {
+	if (calculator_stack.size() <= 1) {
+		cout << "Not enough inputs in stack to perform this operation." << endl;
+		return calculator_stack;
+	}
 	int stack_top = calculator_stack.pop();
 	int stack_second = calculator_stack.pop();
 	calculator_stack.push(stack_top);
@@ -292,6 +359,10 @@ Stack tuck(Stack calculator_stack)
 
 Stack swapp(Stack calculator_stack)
 {
+	if (calculator_stack.size() <= 1) {
+		cout << "Not enough inputs in stack to perform this operation." << endl;
+		return calculator_stack;
+	}
 	int stack_top = calculator_stack.pop();
 	int stack_second = calculator_stack.pop();
 	calculator_stack.push(stack_top);
@@ -301,6 +372,10 @@ Stack swapp(Stack calculator_stack)
 
 Stack greaterThan(Stack calculator_stack)
 {
+	if (calculator_stack.size() <= 1) {
+		cout << "Not enough inputs in stack to perform this operation." << endl;
+		return calculator_stack;
+	}
 	int stack_top = calculator_stack.pop();
 	int stack_second = calculator_stack.pop();
 	if (stack_top > stack_second)
@@ -317,6 +392,10 @@ Stack greaterThan(Stack calculator_stack)
 
 Stack lessThan(Stack calculator_stack)
 {
+	if (calculator_stack.size() <= 1) {
+		cout << "Not enough inputs in stack to perform this operation." << endl;
+		return calculator_stack;
+	}
 	int stack_top = calculator_stack.pop();
 	int stack_second = calculator_stack.pop();
 	if (stack_top < stack_second)
@@ -333,6 +412,10 @@ Stack lessThan(Stack calculator_stack)
 
 Stack equalTo(Stack calculator_stack)
 {
+	if (calculator_stack.size() <= 1) {
+		cout << "Not enough inputs in stack to perform this operation." << endl;
+		return calculator_stack;
+	}
 	int stack_top = calculator_stack.pop();
 	int stack_second = calculator_stack.pop();
 	if (stack_top == stack_second)
