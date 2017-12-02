@@ -14,7 +14,8 @@ makes it reroute tokens and append them to a token string.
 
 User defined functions end with ";" which resets the flag and splits the
 token string into two pieces which will define the key and value to enter
-into the user defined function dictionary.
+into the user defined function dictionary. The key is a string and the value
+is a vector that holds the individual function name strings.
 
 Now the REPL is set up to first recognize integers, then pre-defined functions
 (by searching the pre-defined function dictionary) then finally user-defined functions (again, by
@@ -38,5 +39,15 @@ The tradeoffs in time come from having to search a dictionary to run a function 
 we call that function.
 
 
-// Changed user_function_def to a vector instead of string
-// runUserFunc now takes a vector that is the function definition rather than a token
+If Else Endif implementation: The calculator now accepts if else and endif clauses, but only
+in user function definitions (as is done in FORTH). The function that runs user functions
+simply checks for an "if" in the vector. As soon as this "if" is encountered, there is a call
+to another function which checks which else and endif correspond to this if (this is important
+for nested if clauses). The if simply pops the stack and checks if the item is non-zero which
+will then determine whether to edit the vector to exclude the if command block or the else
+command block.
+
+Begin While Repeat implementation: The calculator now accepts FORTH style loops, but only in
+user function definitions. These loops are implemented very similarly to how the if clauses are;
+the function that runs user defined functions checks for a "begin" which then calls a function to
+check where this begin's corresponding while and repeat are (important for tracking nested loops).

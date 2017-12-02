@@ -61,9 +61,31 @@ int findIndex(std::vector<string> input, string value, string new_match_indicato
 		}
 		i = i + 1;
 	}
-	// TODO Better error handling
-	cout << "BAD" << endl;
-	return -1;
+	cout << "Missing an \"" << value << "\"" << endl;
+	exit(1);
+}
+
+// This function checks if there are equal occurences of strings a, b and c
+// in the vector.
+bool checkFormat(std::vector<string> input_vector, string a, string b, string c)
+{
+	int a_count=0, b_count=0, c_count=0;
+	for (unsigned p = 0; p<input_vector.size(); p++)
+	{
+		if (input_vector[p] == a)
+		{
+			a_count++;
+		}
+		if (input_vector[p] == b)
+		{
+			b_count++;
+		}
+		if (input_vector[p] == c)
+		{
+			c_count++;
+		}
+	}
+	return (a_count == b_count && b_count == c_count);
 }
 
 bool looksLikeInt(string s)
@@ -144,24 +166,23 @@ void runUserFunc(std::vector<string> function_body) // This function is what par
 		}
 		else if (curr_token == "if")
 		{
-			if (true) // TODO I need to change 'true' to a function that returns true if the if has a corresponding else and endif
+			if (checkFormat(user_func_copy, "if", "else", "endif"))
 			{
 				if (calc_stack.pop() != 0) // i.e. if top of stack is non-zero
 				{
 					user_func_copy.erase(user_func_copy.begin());
 					int else_pos = findIndex(user_func_copy, "else", "if");
-					cout << else_pos << endl;
+//					cout << else_pos << endl;
 					int endif_pos = findIndex(user_func_copy, "endif", "if");
-					cout << endif_pos << endl;
+//					cout << endif_pos << endl;
 					user_func_copy.erase(user_func_copy.begin()+(else_pos), user_func_copy.begin()+(endif_pos+1));
-					for (unsigned p = 0; p<user_func_copy.size(); p++)
-					{
-						cout << user_func_copy[p] << "a" << endl;
-					}
+//					for (unsigned p = 0; p<user_func_copy.size(); p++)
+//					{
+//						cout << user_func_copy[p] << "a" << endl;
+//					}
 				}
 				else // i.e. if top of stack is zero
 				{
-					cout << "we in bois" << endl;
 					int else_pos = findIndex(user_func_copy, "else", "if");
 					user_func_copy.erase(user_func_copy.begin(), user_func_copy.begin()+(else_pos+1));
 					int endif_pos = findIndex(user_func_copy, "endif", "if");
@@ -173,23 +194,33 @@ void runUserFunc(std::vector<string> function_body) // This function is what par
 				}
 
 			}
-			// TODO Add error handling else statement when if does not have proper format!
+			else
+			{
+				cout << "If/Else/Endif mismatch" << endl;
+			}
 		}
 		else if (curr_token == "begin")
 		{
-//			cout << "entered begin" << endl;
-			std::vector<string> user_func_loop_copy = user_func_copy; // making a copy we can mutate freely without mutating the original
-//			for (unsigned p = 0; p<user_func_loop_copy.size(); p++)
-//			{
-//				cout << user_func_copy[p] << "|1|" << endl;
-//			}
-			user_func_loop_copy.erase(user_func_loop_copy.begin());	// erase the "begin" keyword
-//			for (unsigned p = 0; p<user_func_loop_copy.size(); p++)
-//			{
-//				cout << user_func_copy[p] << "|2|" << endl;
-//			}
-			runUserFunc(user_func_loop_copy); // i.e. run the code after the while loop...
-			user_func_copy.erase(user_func_copy.begin(), user_func_copy.begin()+findIndex(user_func_copy, "repeat", "begin")+1);
+			if (checkFormat(user_func_copy, "begin", "while", "repeat"))
+			{
+	//			cout << "entered begin" << endl;
+				std::vector<string> user_func_loop_copy = user_func_copy; // making a copy we can mutate freely without mutating the original
+	//			for (unsigned p = 0; p<user_func_loop_copy.size(); p++)
+	//			{
+	//				cout << user_func_copy[p] << "|1|" << endl;
+	//			}
+				user_func_loop_copy.erase(user_func_loop_copy.begin());	// erase the "begin" keyword
+	//			for (unsigned p = 0; p<user_func_loop_copy.size(); p++)
+	//			{
+	//				cout << user_func_copy[p] << "|2|" << endl;
+	//			}
+				runUserFunc(user_func_loop_copy); // i.e. run the code after the while loop...
+				user_func_copy.erase(user_func_copy.begin(), user_func_copy.begin()+findIndex(user_func_copy, "repeat", "begin")+1);
+			}
+			else
+			{
+				cout << "Begin/While/Repeat mismatch" << endl;
+			}
 		}
 		else if (curr_token == "while") // when the token reaches a while, the while shall check a condition and that will determine to
 		{								// run it's code and hit the return statement or to skip to after it's corresponding return.
@@ -223,6 +254,7 @@ void runUserFunc(std::vector<string> function_body) // This function is what par
 		else
 		{
 			cout << "Not a valid input; please continue." << endl;
+			user_func_copy.erase(user_func_copy.begin());
 		}
 }
 }
@@ -232,7 +264,7 @@ void runCalculator()
 	string token;
 	functionsToAdd();
 
-	cout << "Welcome to Postfix Calculator by Christopher Villalta\nPlease enter some integers!" << endl;
+	cout << "Welcome to Postfix Calculator by Christopher Villalta" << endl;
 
 	while (cin >> token and token != "bye") {
 		if (not TAKE_USER_INPUT)
@@ -240,7 +272,7 @@ void runCalculator()
 			if (token == ":")
 			{
 				TAKE_USER_INPUT = true;
-				cout << "Now taking user input." << endl;
+				// cout << "Now taking user input." << endl;
 			}
 			else if (looksLikeInt(token))
 			{
@@ -278,7 +310,7 @@ void runCalculator()
 				string user_function_def = user_input_string.substr(user_input_string.find(" ")+1, user_input_string.length());
 				std::vector<string> user_function_def_v = delimiterParse(user_function_def, " ");
 				addFunctionToUserDict(user_function_name, user_function_def_v);
-				//cout << "No longer taking user input. Here is the string: " << user_input_string << "key: " << user_function_name << "value: " << user_function_def << endl;
+				// cout << "No longer taking user input. Here is the string: " << user_input_string << "key: " << user_function_name << "value: " << user_function_def << endl;
 				user_input_string = ""; // resets our user string to define new definitions
 			}
 		}
