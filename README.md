@@ -1,10 +1,16 @@
+# Stack C++
+
+A stack based postfix calculator built from starter files prepared by Professors David Wonnacott and Kris Micinski in Haverford's CS245: Programming Languages course.
+
+## Description
+
 My calculator implementation consists of several parts:
 
-	1) a stack
-	2) pre-defined functions that can manipulate that stack like a calculator
-	3) a pre-defined dictionary that maps certain strings to the pre-defined functions
-	4) a dictionary that will hold user defined functions
-	5) a REPL loop that interprets user inputs as either: integers, pre-defined functions, user-defined functions
+	- a stack
+	- pre-defined functions that can manipulate that stack like a calculator
+	- a pre-defined dictionary that maps certain strings to the pre-defined functions
+	- a dictionary that will hold user defined functions
+	- a REPL loop that interprets user inputs as either: integers, pre-defined functions, user-defined functions
 
 The REPL loop is a combination of if, else if and else clauses that classify
 a user input token and decide what to do with it based on the classification.
@@ -37,7 +43,6 @@ currently limited to infinite recursion since no if statement has been implement
 
 The tradeoffs in time come from having to search a dictionary to run a function every time
 we call that function.
-
 
 If Else Endif implementation: The calculator now accepts if else and endif clauses, but only
 in user function definitions (as is done in FORTH). The function that runs user functions
