@@ -6,11 +6,11 @@ A stack based postfix calculator built from starter files prepared by Professors
 
 My calculator implementation consists of several parts:
 
-	- a stack
-	- pre-defined functions that can manipulate that stack like a calculator
-	- a pre-defined dictionary that maps certain strings to the pre-defined functions
-	- a dictionary that will hold user defined functions
-	- a REPL loop that interprets user inputs as either: integers, pre-defined functions, user-defined functions
+- a stack
+- pre-defined functions that can manipulate that stack like a calculator
+- a pre-defined dictionary that maps certain strings to the pre-defined functions
+- a dictionary that will hold user defined functions
+- a REPL loop that interprets user inputs as either: integers, pre-defined functions, user-defined functions
 
 The REPL loop is a combination of if, else if and else clauses that classify
 a user input token and decide what to do with it based on the classification.
